@@ -1,0 +1,11 @@
+local:
+  dialect: mysql
+  datasource: root@tcp(127.0.0.1:3306)/sample?parseTime=true
+  dir: sample
+# development:
+# staging:
+# production:
+ci:
+  dialect: mysql
+  datasource: root@tcp(127.0.0.1:3306)/sample?parseTime=true
+  dir: sample
