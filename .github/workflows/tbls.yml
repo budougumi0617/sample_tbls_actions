@@ -31,7 +31,7 @@ jobs:
           go-version: '^1.17.1'
       - name: Execute migration
         run: |
-          go get -u github.com/rubenv/sql-migrate/sql-migrate
+          go install github.com/rubenv/sql-migrate/sql-migrate@latest
           make up ENV=ci
         working-directory: ./schema
       - name: Execute tbls
