@@ -11,6 +11,7 @@
 CREATE TABLE `cards` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '識別子',
   `user_id` int(11) unsigned NOT NULL COMMENT 'カードユーザーの識別子',
+  `status` varchar(12) DEFAULT NULL COMMENT 'カードの状態',
   `created_at` datetime(6) NOT NULL COMMENT 'レコード作成日時',
   `modified_at` datetime(6) NOT NULL COMMENT 'レコード修正日時',
   PRIMARY KEY (`id`),
@@ -27,6 +28,7 @@ CREATE TABLE `cards` (
 | ---- | ---- | ------- | -------- | --------------- | -------- | ------- | ------- |
 | id | int(11) unsigned |  | false | auto_increment |  |  | 識別子 |
 | user_id | int(11) unsigned |  | false |  |  | [users](users.md) | カードユーザーの識別子 |
+| status | varchar(12) |  | true |  |  |  | カードの状態 |
 | created_at | datetime(6) |  | false |  |  |  | レコード作成日時 |
 | modified_at | datetime(6) |  | false |  |  |  | レコード修正日時 |
 
