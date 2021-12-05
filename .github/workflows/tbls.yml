@@ -1,0 +1,71 @@
+name: update er graph
+on:
+  pull_request:
+    paths:
+      - schema/sample/**
+      - schema/tbls.yml
+jobs:
+  tbls:
+    name: generate-and-push
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        options: --health-cmd "mysqladmin ping -h localhost" --health-interval 20s --health-timeout 10s --health-retries 10
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          MYSQL_DATABASE: sample
+          MYSQL_USER: sample
+          MYSQL_PASSWORD: sample
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - name: Setup go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.17.1'
+      - name: Execute migration
+        run: |
+          go get -u github.com/rubenv/sql-migrate/sql-migrate
+          make up ENV=ci
+        working-directory: ./schema
+      - name: Execute tbls
+        run: |
+          curl -sL https://git.io/use-tbls > use-tbls.tmp && . ./use-tbls.tmp && rm ./use-tbls.tmp
+          tbls doc -f
+        working-directory: ./schema
+      # tbls実行後、差分有りもしくは新規ファイルの数をカウントする
+      - name: Count uncommit files
+        id: check_diff
+        run: |
+          git status --porcelain | wc -l
+          file_count=$(git status --porcelain | wc -l)
+          echo "::set-output name=file_count::$file_count"
+        working-directory: ./schema
+      - name: Commit ER graph
+        # 更新したER図をPRにコミットする
+        if: ${{ steps.check_diff.outputs.file_count != '0' }}
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "generate er graphs from actions"
+          git push
+        working-directory: ./schema
+      # PRへ自動コミットしたらPRにコメントしておく
+      - name: Report commit on pull request
+        if: ${{ steps.check_diff.outputs.file_count != '0' }}
+        uses: actions/github-script@v4
+        with:
+          script: |
+            github.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Actions committed new ER files🤖'
+            })
