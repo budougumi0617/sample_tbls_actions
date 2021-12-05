@@ -1,0 +1,12 @@
+# DSN (Database Source Name) to connect database
+dsn: mysql://root@127.0.0.1:3306/sample?parseTime=true
+
+er:
+  # Add table/column comment to ER diagram
+  # Default is false
+  comment: true
+  # Distance between tables that display relations in the ER
+  # Default is 1
+  distance: 9
+exclude:
+  - gorp_migrations
